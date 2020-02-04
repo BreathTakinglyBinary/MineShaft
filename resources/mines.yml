@@ -1,0 +1,53 @@
+#  This file details all areas where ores will be spawned for players.
+#
+# This is the name of the mine.
+#  MineA:
+#
+#    This is the folder name of the world where the mine is located.
+#    Each mine should be located in a different world if you are using
+#    this plugin to protect the mines.
+#    level: minea
+#
+#    pos1 and pos2 should be the corners of the area where ores will be spawned
+#    pos1:
+#      - x: -45
+#      - y: 64
+#      - z: 1076
+#    pos2:
+#      - x: 758
+#      - y: 180
+#      - z: 2144
+#
+#    This is the list of ores to fill the mine with. You can have any number
+#    of ores you'd like.  The format for these is BlockID;BlockMeta;Weight;
+#    Higher weights will appear more often while lower weights appear less often.
+#    ores:
+#      - 1;0;31
+#      - ;10;70
+
+MineA:
+  level: minea
+  pos1:
+    - x: -45
+    - y: 64
+    - z: 1076
+  pos2:
+    - x: 758
+    - y: 180
+    - z: 2144
+  ores:
+    - 1;0;31
+    - 263;10;70
+MineB:
+  level: mineb
+  pos1:
+    - x: -45
+    - y: 64
+    - z: 72
+  pos2:
+    - x: -100
+    - y: 30
+    - z: 12
+  ores:
+    - 56;0;31
+    - 263;10;70

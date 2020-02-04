@@ -1,0 +1,12 @@
+# Set this option to true if you want MineShaft to protect the ores of each mine.
+
+protection:
+  enabled: true
+  entire_world: false
+
+refill:
+  automatic: true
+  type: percent
+  percent: 10
+  time: 600
+
