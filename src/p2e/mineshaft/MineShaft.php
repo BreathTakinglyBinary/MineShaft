@@ -23,7 +23,7 @@ class MineShaft extends PluginBase{
         return self::$properties;
     }
 
-    public function getInstance(): MineShaft{
+    public static function getInstance(): MineShaft{
         return self::$instance;
     }
 
