@@ -1,5 +1,5 @@
-name: Mines
-main: p2e/mineshaft/MineShaft
+name: MineShaft
+main: p2e\mineshaft\MineShaft
 version: 0.0.1
-api-version: 3.0.0
+api: 3.0.0
 author: 95CivicSi
