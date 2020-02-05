@@ -75,8 +75,9 @@ class MineShaftConfiguration{
      * @param int $refillInterval
      */
     public function setRefillInterval(int $refillInterval) : void{
-        if(!($refillInterval <= 90 and 1 <= $refillInterval)){
-
+        if(!($refillInterval >= 60)){
+            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$refillInterval\" for refill interval.  Must be an integer of 60 or more. Using " . $this->refillInterval . " instead.");
+            return;
         }
         $this->refillInterval = $refillInterval;
     }
@@ -92,6 +93,10 @@ class MineShaftConfiguration{
      * @param int $refillPercentage
      */
     public function setRefillPercentage(int $refillPercentage) : void{
+        if(!($refillPercentage <= 90 and 1 <= $refillPercentage)){
+            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$refillPercentage\" for refill percentage.  Must be an integer between 1 and 90. Using " . $this->refillPercentage . " instead.");
+            return;
+        }
         $this->refillPercentage = $refillPercentage;
     }
 
