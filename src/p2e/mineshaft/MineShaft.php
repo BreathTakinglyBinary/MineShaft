@@ -19,15 +19,15 @@ class MineShaft extends PluginBase{
         $this->loadConfig();
     }
 
-    public static function getProperties(): MineShaftConfiguration{
+    public static function getProperties() : MineShaftConfiguration{
         return self::$properties;
     }
 
-    public static function getInstance(): MineShaft{
+    public static function getInstance() : MineShaft{
         return self::$instance;
     }
 
-    private function loadConfig() : void {
+    private function loadConfig() : void{
         if(self::$properties === null){
             self::$properties = new MineShaftConfiguration();
         }
@@ -59,19 +59,19 @@ class MineShaft extends PluginBase{
         $type = strtolower($config->getNested("refill.type", ""));
         if($type === "time"){
             self::$properties->setRefillType(MineShaftConfiguration::REFILL_TYPE_TIME);
-        } elseif($type !== "percent") {
+        }elseif($type !== "percent"){
             $this->getLogger()->warning("Found invalid value for refill setting \"type\" in config.yml.  Setting to default \"percent\"");
         }
 
         if(is_int(($interval = $config->getNested("refill.interval", null)))){
             self::$properties->setRefillInterval($interval);
-        } else {
+        }else{
             $this->getLogger()->warning("Found invalid value for refill setting \"interval\" in config.yml.  Setting to default \"" . self::$properties->getRefillInterval() . "\".");
         }
 
         if(is_int(($percentage = $config->getNested("refill.percentage", null)))){
             self::$properties->setRefillPercentage($percentage);
-        } else {
+        }else{
             $this->getLogger()->warning("Found invalid value for refill setting \"percentage\" in config.yml.  Setting to default \"" . self::$properties->getRefillPercentage() . "\".");
         }
     }
