@@ -7,6 +7,6 @@ protection:
 refill:
   automatic: true
   type: percent
-  percent: 10
-  time: 600
+  percentage: 10
+  interval: 600
 
