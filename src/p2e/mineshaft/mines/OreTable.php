@@ -81,4 +81,11 @@ class OreTable extends WeightedSelectionTable{
         }
     }
 
+    /**
+     * @return array
+     */
+    public function getOreMap() : array{
+        return $this->oreMap;
+    }
+
 }
