@@ -53,7 +53,7 @@ class OreTable extends WeightedSelectionTable{
         $this->ores = [];
         $this->oreMap = [];
         foreach($ores as $ore){
-            if(!isset($ores["id"]) or !isset($ores["meta"]) or !isset($ores["weight"])){
+            if(!isset($ore["id"]) or !isset($ore["meta"]) or !isset($ore["weight"])){
                 throw new \InvalidArgumentException("Ores array passed to OreTable:setOres contains an invalid structure!");
             }
 
