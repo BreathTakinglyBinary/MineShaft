@@ -104,9 +104,7 @@ class Mine{
 
     /**
      * Returns true if the given position is in the level and designated
-     * area for ores to be filled. This is inteneded for 2 purposes, to
-     * check a player's position before refilling the mines and for world
-     * protections to determine if a given block is in the mineable area.
+     * area for ores to be filled.
      *
      * @param Position $pos
      *
