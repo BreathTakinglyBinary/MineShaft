@@ -14,6 +14,9 @@ class Mine{
     /** @var AxisAlignedBB */
     private $bb;
 
+    /** @var \DateTime */
+    private $lastReset;
+
     /** @var Level */
     private $level;
 
@@ -47,6 +50,7 @@ class Mine{
         $this->updateBB();
         $this->calculateTotalBlocks();
         $this->resetRemainingBlocks();
+        $this->setLastReset();
     }
 
     public function getName() : string{
@@ -139,5 +143,13 @@ class Mine{
         $y = (int) $this->bb->maxY - $this->bb->minY;
         $z = (int) $this->bb->maxZ - $this->bb->minZ;
         $this->totalBlocks = ($x * $y * $z);
+    }
+
+    private function getLastReset() : \DateTime{
+        return $this->lastReset;
+    }
+
+    private function setLastReset(): void{
+        $this->lastReset = new \DateTime();
     }
 }
