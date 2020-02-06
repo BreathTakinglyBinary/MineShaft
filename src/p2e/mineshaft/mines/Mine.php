@@ -32,6 +32,12 @@ class Mine{
     /** @var Vector3 */
     private $pos2;
 
+    /** @var int */
+    private $totalBlocks;
+
+    /** @var int */
+    private $remainingBlocks;
+
     public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, OreTable $oreTable){
         $this->name = $name;
         $this->level = $level;
@@ -39,6 +45,8 @@ class Mine{
         $this->pos2 = $pos2;
         $this->oreTable = $oreTable;
         $this->updateBB();
+        $this->calculateTotalBlocks();
+        $this->resetRemainingBlocks();
     }
 
     public function getName() : string{
@@ -108,5 +116,28 @@ class Mine{
             return false;
         }
         return true;
+    }
+
+    public function resetRemainingBlocks() : void{
+        $this->remainingBlocks = $this->totalBlocks;
+    }
+
+    public function reduceBlockCount() : void{
+        $this->remainingBlocks--;
+    }
+
+    public function getRemainingBlocks() : int{
+        return $this->remainingBlocks;
+    }
+
+    public function getTotalBlocks() : int{
+        return $this->totalBlocks;
+    }
+
+    private function calculateTotalBlocks() : void{
+        $x = (int) $this->bb->maxX - $this->bb->minX;
+        $y = (int) $this->bb->maxY - $this->bb->minY;
+        $z = (int) $this->bb->maxZ - $this->bb->minZ;
+        $this->totalBlocks = ($x * $y * $z);
     }
 }
