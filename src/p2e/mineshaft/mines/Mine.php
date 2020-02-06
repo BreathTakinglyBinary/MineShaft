@@ -79,7 +79,11 @@ class Mine{
         $maxX = $this->pos1->x > $this->pos2->x ? $this->pos2->x : $this->pos1->x;
         $maxY = $this->pos1->y > $this->pos2->y ? $this->pos2->y : $this->pos1->y;
         $maxZ = $this->pos1->z > $this->pos2->z ? $this->pos2->z : $this->pos1->z;
-        $this->bb->setBounds($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
+        if($this->bb === null){
+            $this->bb = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
+        }else{
+            $this->bb->setBounds($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
+        }
     }
 
     public function getBB() : AxisAlignedBB{
