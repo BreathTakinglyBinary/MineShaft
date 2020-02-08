@@ -36,10 +36,10 @@ class Mine{
     private $pos2;
 
     /** @var int */
-    private $totalBlocks;
+    private $remainingBlocks;
 
     /** @var int */
-    private $remainingBlocks;
+    private $totalBlocks;
 
     public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, OreTable $oreTable){
         $this->name = $name;
