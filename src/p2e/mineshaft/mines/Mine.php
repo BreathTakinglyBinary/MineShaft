@@ -8,6 +8,7 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
+use pocketmine\Player;
 
 class Mine{
 
@@ -65,7 +66,7 @@ class Mine{
         $this->locked = $enabled;
     }
 
-    public function isLocked() : bool {
+    public function isLocked() : bool{
         return $this->locked;
     }
 
@@ -148,7 +149,21 @@ class Mine{
         return $this->lastReset;
     }
 
-    private function setLastReset(): void{
+    private function setLastReset() : void{
         $this->lastReset = new \DateTime();
+    }
+
+    /**
+     * $node Parameter is typically the action word being tested for
+     * eg. "break" or "place"
+     *
+     * @param Player $player
+     * @param string $node
+     *
+     * @return bool
+     */
+    public function playerHasPermission(Player $player, string $node) : bool {
+        $mineNameNode = strtolower($this->name);
+        return $player->hasPermission("mineshaft." .$node . ".$mineNameNode") or $player->hasPermission("mineshaft.bypass.$mineNameNode");
     }
 }
