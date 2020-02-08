@@ -39,6 +39,13 @@ class MineManager{
         return $this->mines[$mineName] ?? null;
     }
 
+    /**
+     * @return Mine[]
+     */
+    public function getMines() : array{
+        return $this->mines;
+    }
+
     public function loadFromConfig() : void{
         MineShaft::getInstance()->saveResource("mines.yml", false);
 
