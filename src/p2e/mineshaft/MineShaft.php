@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace p2e\mineshaft;
 
 
+use p2e\mineshaft\mines\MineManager;
 use pocketmine\plugin\PluginBase;
 
 class MineShaft extends PluginBase{
@@ -14,9 +15,13 @@ class MineShaft extends PluginBase{
     /** @var MineShaft */
     private static $instance;
 
+    /** @var MineManager */
+    private $mineManager;
+
     public function onEnable(){
         self::$instance = $this;
         $this->loadConfig();
+        $this->mineManager = new MineManager();
     }
 
     public static function getProperties() : MineShaftConfiguration{
