@@ -143,11 +143,11 @@ class Mine{
         $this->totalBlocks = ($x * $y * $z);
     }
 
-    private function getLastReset() : \DateTime{
+    public function getLastReset() : \DateTime{
         return $this->lastReset;
     }
 
-    private function setLastReset(): void{
+    public function setLastReset(): void{
         $this->lastReset = new \DateTime();
     }
 }
