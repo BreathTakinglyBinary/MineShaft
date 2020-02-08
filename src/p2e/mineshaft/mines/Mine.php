@@ -122,6 +122,7 @@ class Mine{
 
     public function resetRemainingBlocks() : void{
         $this->remainingBlocks = $this->totalBlocks;
+        $this->setLastReset();
     }
 
     public function reduceBlockCount() : void{
@@ -147,7 +148,7 @@ class Mine{
         return $this->lastReset;
     }
 
-    public function setLastReset(): void{
+    private function setLastReset(): void{
         $this->lastReset = new \DateTime();
     }
 }
