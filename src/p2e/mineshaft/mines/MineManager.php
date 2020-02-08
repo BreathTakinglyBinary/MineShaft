@@ -5,6 +5,7 @@ namespace p2e\mineshaft\mines;
 
 
 use p2e\mineshaft\MineShaft;
+use p2e\mineshaft\MineShaftConfiguration;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 
@@ -13,8 +14,12 @@ class MineManager{
     /** @var Mine[] */
     private $mines;
 
+    /** @var ResetQueue */
+    private $resetQueue;
+
 
     public function __construct(){
+        $this->resetQueue = new ResetQueue();
         $this->loadFromConfig();
     }
 
@@ -28,6 +33,22 @@ class MineManager{
             MineShaft::getInstance()->getLogger()->warning("Overwriting existing mine " . $mine->getName());
         }
         $this->mines[$mine->getName()] = $mine;
+    }
+
+    public function tick() : void{
+        if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_TIME){
+            $this->checkLastReset();
+        }
+        $this->resetQueue->processNext();
+    }
+
+    private function checkLastReset(): void{
+        $currentTime = new \DateTime();
+        foreach($this->mines as $mine){
+            if(($mine->getLastReset()->add($this->interval)) <= $currentTime){
+                $this->resetQueue->addMine($mine);
+            }
+        }
     }
 
     /**
