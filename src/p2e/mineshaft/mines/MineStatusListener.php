@@ -30,17 +30,26 @@ class MineStatusListener extends MineListener implements Listener{
             return;
         }
         $block = $event->getBlock();
-        if($this->mine->isInMineableArea($block)){
-            $this->mine->removeOre($block);
-            if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_PERCENT){
-                if($this->manager->getResetQueue()->isQueued($this->mine)){
-                    return;
-                }
-                $remainingPercentage = floor(($this->mine->getRemainingBlocks() / $this->mine->getTotalBlocks()) * 100);
-                if($remainingPercentage <= MineShaft::getProperties()->getRefillPercentage()){
-                    $this->manager->getResetQueue()->addMine($this->mine);
-                }
-            }
+        if(!$this->mine->isInMineableArea($block)){
+            return;
+        }
+
+        $this->mine->removeOre($block);
+        if(!MineShaft::getProperties()->isAutoRefillEnabled()){
+            return;
+        }
+
+        if(!MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_PERCENT){
+            return;
+        }
+
+        if($this->manager->getResetQueue()->isQueued($this->mine)){
+            return;
+        }
+
+        $remainingPercentage = floor(($this->mine->getRemainingBlocks() / $this->mine->getTotalBlocks()) * 100);
+        if($remainingPercentage <= MineShaft::getProperties()->getRefillPercentage()){
+            $this->manager->getResetQueue()->addMine($this->mine);
         }
     }
 
