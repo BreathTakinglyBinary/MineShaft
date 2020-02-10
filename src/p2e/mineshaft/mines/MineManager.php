@@ -46,6 +46,13 @@ class MineManager{
         Server::getInstance()->getPluginManager()->registerEvents($this->statusListeners[$mineName], MineShaft::getInstance());
     }
 
+    /**
+     * @return ResetQueue
+     */
+    public function getResetQueue() : ResetQueue{
+        return $this->resetQueue;
+    }
+
     public function tick() : void{
         if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_TIME){
             $this->checkLastReset();
