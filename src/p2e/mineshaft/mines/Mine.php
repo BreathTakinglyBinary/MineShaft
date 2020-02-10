@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
+use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\AxisAlignedBB;
@@ -38,6 +39,9 @@ class Mine{
 
     /** @var int */
     private $remainingBlocks;
+
+    /** @var array */
+    private $removedBlocks = [];
 
     /** @var int */
     private $totalBlocks;
@@ -118,15 +122,38 @@ class Mine{
         if(!$this->bb->isVectorInside($pos)){
             return false;
         }
+
         return true;
     }
 
     public function resetRemainingBlocks() : void{
+        $this->removedBlocks = [];
         $this->remainingBlocks = $this->totalBlocks;
         $this->setLastReset();
     }
 
-    public function reduceBlockCount() : void{
+    /**
+     * If block is in minable area, ensures the block is removed and returns true, else returns false.
+     *
+     * @param Block $block
+     *
+     * @return bool
+     */
+    public function removeOre(Block $block) : bool{
+        if(!$block->getLevel()->getName() === $this->level->getName()){
+            return false;
+        }
+        if(!$this->bb->isVectorInside($block)){
+            return false;
+        }
+        if(!isset($this->removedBlocks[(int) $block->x][(int) $block->z][(int) $block->z])){
+            $this->reduceBlockCount();
+            $this->removedBlocks[(int) $block->x][(int) $block->z][(int) $block->z] = true;
+        }
+        return true;
+    }
+
+    private function reduceBlockCount() : void{
         $this->remainingBlocks--;
     }
 
@@ -151,19 +178,5 @@ class Mine{
 
     private function setLastReset() : void{
         $this->lastReset = new \DateTime();
-    }
-
-    /**
-     * $node Parameter is typically the action word being tested for
-     * eg. "break" or "place"
-     *
-     * @param Player $player
-     * @param string $node
-     *
-     * @return bool
-     */
-    public function playerHasPermission(Player $player, string $node) : bool {
-        $mineNameNode = strtolower($this->name);
-        return $player->hasPermission("mineshaft." .$node . ".$mineNameNode") or $player->hasPermission("mineshaft.bypass.$mineNameNode");
     }
 }
