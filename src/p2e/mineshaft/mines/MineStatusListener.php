@@ -4,12 +4,21 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
+use p2e\mineshaft\MineShaft;
+use p2e\mineshaft\MineShaftConfiguration;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerMoveEvent;
 
 class MineStatusListener extends MineListener implements Listener{
+
+    private $manager;
+
+    public function __construct(Mine $mine, MineManager $manager){
+        $this->manager = $manager;
+        parent::__construct($mine);
+    }
 
     /**
      * @param BlockBreakEvent $event
@@ -23,6 +32,15 @@ class MineStatusListener extends MineListener implements Listener{
         $block = $event->getBlock();
         if($this->mine->isInMineableArea($block)){
             $this->mine->removeOre($block);
+            if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_PERCENT){
+                if($this->manager->getResetQueue()->isQueued($this->mine)){
+                    return;
+                }
+                $remainingPercentage = floor(($this->mine->getRemainingBlocks() / $this->mine->getTotalBlocks()) * 100);
+                if($remainingPercentage <= MineShaft::getProperties()->getRefillPercentage()){
+                    $this->manager->getResetQueue()->addMine($this->mine);
+                }
+            }
         }
     }
 
