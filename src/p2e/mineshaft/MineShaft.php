@@ -5,6 +5,7 @@ namespace p2e\mineshaft;
 
 
 use p2e\mineshaft\mines\MineManager;
+use p2e\mineshaft\tasks\MineManagerHeatbeatTask;
 use pocketmine\plugin\PluginBase;
 
 class MineShaft extends PluginBase{
@@ -22,6 +23,7 @@ class MineShaft extends PluginBase{
         self::$instance = $this;
         $this->loadConfig();
         $this->mineManager = new MineManager();
+        $this->getScheduler()->scheduleRepeatingTask(new MineManagerHeatbeatTask($this->mineManager), self::$properties->getQueueProcessInterval());
     }
 
     public static function getProperties() : MineShaftConfiguration{
