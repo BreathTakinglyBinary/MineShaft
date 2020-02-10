@@ -18,6 +18,9 @@ class MineShaftConfiguration{
 
     private $protectionEnabled = false;
 
+    /** @var int */
+    private $queueProcessInterval = 10;
+
     private $refillType = self::REFILL_TYPE_PERCENT;
 
     private $refillPercentage = 5;
@@ -65,6 +68,22 @@ class MineShaftConfiguration{
      */
     public function isProtectionEnabled() : bool{
         return $this->protectionEnabled;
+    }
+
+    /**
+     * Represent number of ticks between each process.
+     *
+     * @return int
+     */
+    public function getQueueProcessInterval() : int{
+        return $this->queueProcessInterval;
+    }
+
+    /**
+     * @param int $queueProcessInterval
+     */
+    public function setQueueProcessInterval(int $queueProcessInterval) : void{
+        $this->queueProcessInterval = $queueProcessInterval;
     }
 
     /**
