@@ -81,6 +81,11 @@ class MineShaft extends PluginBase{
         }else{
             $this->getLogger()->warning("Found invalid value for refill setting \"percentage\" in config.yml.  Setting to default \"" . self::$properties->getRefillPercentage() . "\".");
         }
+
+        // This value is intentionally left out of the default config as it can cause performance issue if set inappropriately.
+        if(is_int(($queueProcessInterval = $config->getNested("global.queue_process_interval", null)))){
+            self::$properties->setQueueProcessInterval($queueProcessInterval);
+        }
     }
 
 }
