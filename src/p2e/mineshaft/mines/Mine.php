@@ -9,7 +9,6 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
 
 class Mine{
 
@@ -143,7 +142,7 @@ class Mine{
         if(!$block->getLevel()->getName() === $this->level->getName()){
             return false;
         }
-        if(!$this->bb->isVectorInside($block)){
+        if(!$this->isInMineableArea($block)){
             return false;
         }
         if(!isset($this->removedBlocks[(int) $block->x][(int) $block->z][(int) $block->z])){
