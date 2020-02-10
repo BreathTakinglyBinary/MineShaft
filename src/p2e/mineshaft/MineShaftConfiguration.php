@@ -83,6 +83,9 @@ class MineShaftConfiguration{
      * @param int $queueProcessInterval
      */
     public function setQueueProcessInterval(int $queueProcessInterval) : void{
+        if(!($queueProcessInterval >= 1)){
+            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$queueProcessInterval\" for queue process interval.  Must be an integer greater than 0. Using " . $this->queueProcessInterval . " instead.");
+        }
         $this->queueProcessInterval = $queueProcessInterval;
     }
 
