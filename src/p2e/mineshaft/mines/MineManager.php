@@ -40,7 +40,7 @@ class MineManager{
         }
         $this->mines[$mineName] = $mine;
         $this->protectionListeners[$mineName] = new MineProtectionListener($mine);
-        $this->statusListeners[$mineName] = new MineStatusListener($mine);
+        $this->statusListeners[$mineName] = new MineStatusListener($mine, $this);
         Server::getInstance()->getPluginManager()->registerEvents($this->protectionListeners[$mineName], MineShaft::getInstance());
         Server::getInstance()->getPluginManager()->registerEvents($this->statusListeners[$mineName], MineShaft::getInstance());
     }
