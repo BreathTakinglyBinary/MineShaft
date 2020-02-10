@@ -13,8 +13,18 @@ class ResetQueue{
     /** @var Mine[] */
     private $queue;
 
+    /** @var array  */
+    private $queueList = [];
+
+    public function isQueued(Mine $mine) : bool{
+        return isset($this->queueList[$mine->getName()]);
+}
+
     public function addMine(Mine $mine) : void{
-        $this->queue[] = $mine;
+        if(!$this->isQueued($mine)){
+            $this->queue[] = $mine;
+            $this->queueList[$mine->getName()] = true;
+        }
     }
 
     public function processNext() : void{
@@ -22,6 +32,7 @@ class ResetQueue{
         if($nextMine instanceof Mine){
             $protectionEnabled = MineShaft::getProperties()->isEntireWorldProtectionEnabled();
             MineShaft::getInstance()->getScheduler()->scheduleTask(new MineResetTask($nextMine, $protectionEnabled));
+            unset($this->queueList[$nextMine->getName()]);
         }
     }
 }
