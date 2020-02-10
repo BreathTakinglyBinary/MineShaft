@@ -14,8 +14,14 @@ class MineManager{
     /** @var Mine[] */
     private $mines;
 
+    /** @var MineProtectionListener[] */
+    private $protectionListeners = [];
+
     /** @var ResetQueue */
     private $resetQueue;
+
+    /** @var MineStatusListener[] */
+    private $statusListeners = [];
 
 
     public function __construct(){
@@ -24,15 +30,20 @@ class MineManager{
     }
 
     public function registerMine(Mine $mine, bool $force = false){
-        if(isset($this->mines[$mine->getName()])){
+        $mineName = $mine->getName();
+        if(isset($this->mines[$mineName])){
             if(!$force){
-                MineShaft::getInstance()->getLogger()->error("Tried to register duplicate mine " . $mine->getName());
+                MineShaft::getInstance()->getLogger()->error("Tried to register duplicate mine  $mineName");
 
                 return;
             }
-            MineShaft::getInstance()->getLogger()->warning("Overwriting existing mine " . $mine->getName());
+            MineShaft::getInstance()->getLogger()->warning("Overwriting existing mine $mineName");
         }
-        $this->mines[$mine->getName()] = $mine;
+        $this->mines[$mineName] = $mine;
+        $this->protectionListeners[$mineName] = new MineProtectionListener($mine);
+        $this->statusListeners[$mineName] = new MineStatusListener($mine);
+        Server::getInstance()->getPluginManager()->registerEvents($this->protectionListeners[$mineName], MineShaft::getInstance());
+        Server::getInstance()->getPluginManager()->registerEvents($this->statusListeners[$mineName], MineShaft::getInstance());
     }
 
     public function tick() : void{
