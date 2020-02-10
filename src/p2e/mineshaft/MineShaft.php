@@ -71,7 +71,7 @@ class MineShaft extends PluginBase{
         if(is_int(($interval = $config->getNested("refill.interval", null)))){
             self::$properties->setRefillInterval($interval);
         }else{
-            $this->getLogger()->warning("Found invalid value for refill setting \"interval\" in config.yml.  Setting to default \"" . self::$properties->getRefillInterval() . "\".");
+            $this->getLogger()->warning("Found invalid value for refill setting \"interval\" in config.yml.  Setting to default \"" . self::$properties->getRefillInterval()->format("%s seconds") . "\".");
         }
 
         if(is_int(($percentage = $config->getNested("refill.percentage", null)))){

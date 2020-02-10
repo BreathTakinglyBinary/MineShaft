@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace p2e\mineshaft;
 
 
+use DateInterval;
+
 class MineShaftConfiguration{
 
     public const REFILL_TYPE_PERCENT = 0;
@@ -20,6 +22,7 @@ class MineShaftConfiguration{
 
     private $refillPercentage = 5;
 
+    /** @var DateInterval */
     private $refillInterval = 600;
 
     /**
@@ -65,22 +68,22 @@ class MineShaftConfiguration{
     }
 
     /**
-     * @return int
+     * @return DateInterval
      */
-    public function getRefillInterval() : int{
+    public function getRefillInterval() : DateInterval{
         return $this->refillInterval;
     }
 
     /**
-     * @param int $refillInterval
+     * @param int $seconds
      */
-    public function setRefillInterval(int $refillInterval) : void{
-        if(!($refillInterval >= 60)){
-            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$refillInterval\" for refill interval.  Must be an integer of 60 or more. Using " . $this->refillInterval . " instead.");
+    public function setRefillInterval(int $seconds) : void{
+        if(!($seconds >= 60)){
+            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$seconds\" for refill interval.  Must be an integer of 60 or more. Using " . $this->refillInterval->format("%s seconds") . " instead.");
 
             return;
         }
-        $this->refillInterval = $refillInterval;
+        $this->refillInterval = $seconds;
     }
 
     /**
