@@ -37,7 +37,7 @@ MineA:
     z_coord: 2144
   ores:
     - 1;0;31
-    - 263;10;70
+    - 236;10;70
 MineB:
   level: mineb
   pos1:
@@ -50,4 +50,4 @@ MineB:
     z_coord: 12
   ores:
     - 56;0;31
-    - 263;10;70
+    - 236;10;70
