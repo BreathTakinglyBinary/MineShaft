@@ -34,7 +34,6 @@ class MineManager{
         if(isset($this->mines[$mineName])){
             if(!$force){
                 MineShaft::getInstance()->getLogger()->error("Tried to register duplicate mine  $mineName");
-
                 return;
             }
             MineShaft::getInstance()->getLogger()->warning("Overwriting existing mine $mineName");
@@ -63,7 +62,7 @@ class MineManager{
     private function checkLastReset(): void{
         $currentTime = new \DateTime();
         foreach($this->mines as $mine){
-            if(($mine->getLastReset()->add($this->interval)) <= $currentTime){
+            if(($mine->getLastReset()->add(MineShaft::getProperties()->getRefillInterval())) <= $currentTime){
                 $this->resetQueue->addMine($mine);
             }
         }
