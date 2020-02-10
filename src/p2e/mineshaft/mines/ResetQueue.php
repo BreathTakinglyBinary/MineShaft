@@ -11,7 +11,7 @@ use p2e\mineshaft\tasks\MineResetTask;
 class ResetQueue{
 
     /** @var Mine[] */
-    private $queue;
+    private $queue = [];
 
     /** @var array  */
     private $queueList = [];
