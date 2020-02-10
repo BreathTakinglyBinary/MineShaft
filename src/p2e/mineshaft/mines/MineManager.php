@@ -53,7 +53,7 @@ class MineManager{
     }
 
     public function tick() : void{
-        if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_TIME){
+        if(MineShaft::getProperties()->getRefillType() === MineShaftConfiguration::REFILL_TYPE_TIME and MineShaft::getProperties()->isAutoRefillEnabled()){
             $this->checkLastReset();
         }
         $this->resetQueue->processNext();
