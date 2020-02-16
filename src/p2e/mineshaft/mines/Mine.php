@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
+use p2e\mineshaft\MineShaft;
 use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -45,13 +46,14 @@ class Mine{
     /** @var int */
     private $totalBlocks;
 
-    public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, OreTable $oreTable){
+    public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, array $ores){
         $this->name = $name;
         $this->level = $level;
         $this->pos1 = $pos1;
         $this->pos2 = $pos2;
-        $this->oreTable = $oreTable;
         $this->updateBB();
+
+        $this->oreTable = new OreTable($ores, $this->bb);
         $this->calculateTotalBlocks();
         $this->resetRemainingBlocks();
         $this->setLastReset();
@@ -89,13 +91,14 @@ class Mine{
 
 
     private function updateBB() : void{
-        $minX = $this->pos1->x < $this->pos2->x ? $this->pos2->x : $this->pos1->x;
-        $minY = $this->pos1->y < $this->pos2->y ? $this->pos2->y : $this->pos1->y;
-        $minZ = $this->pos1->z < $this->pos2->z ? $this->pos2->z : $this->pos1->z;
-        $maxX = $this->pos1->x > $this->pos2->x ? $this->pos2->x : $this->pos1->x;
-        $maxY = $this->pos1->y > $this->pos2->y ? $this->pos2->y : $this->pos1->y;
-        $maxZ = $this->pos1->z > $this->pos2->z ? $this->pos2->z : $this->pos1->z;
+        $minX = $this->pos1->x > $this->pos2->x ? $this->pos2->x : $this->pos1->x;
+        $minY = $this->pos1->y > $this->pos2->y ? $this->pos2->y : $this->pos1->y;
+        $minZ = $this->pos1->z > $this->pos2->z ? $this->pos2->z : $this->pos1->z;
+        $maxX = $this->pos1->x < $this->pos2->x ? $this->pos2->x : $this->pos1->x;
+        $maxY = $this->pos1->y < $this->pos2->y ? $this->pos2->y : $this->pos1->y;
+        $maxZ = $this->pos1->z < $this->pos2->z ? $this->pos2->z : $this->pos1->z;
         if($this->bb === null){
+            MineShaft::getInstance()->getLogger()->debug("Creating new AABB with $minX, $minY, $minZ, $maxX, $maxY, $maxZ");
             $this->bb = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
         }else{
             $this->bb->setBounds($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
@@ -116,9 +119,12 @@ class Mine{
      */
     public function isInMineableArea(Position $pos) : bool{
         if($this->level->getFolderName() !== $pos->getLevel()->getFolderName()){
+            MineShaft::getInstance()->getLogger()->debug("Mine::isInMineableArea(): Folder name is not a match");
             return false;
         }
-        if(!$this->bb->isVectorInside($pos)){
+        $bb = $this->bb->expandedCopy(1, 1, 1);
+        if(!$bb->isVectorInside($pos)){
+            MineShaft::getInstance()->getLogger()->debug("Mine::isInMineableArea(): not inside the bounding box");
             return false;
         }
 
@@ -168,7 +174,7 @@ class Mine{
         $x = (int) $this->bb->maxX - $this->bb->minX;
         $y = (int) $this->bb->maxY - $this->bb->minY;
         $z = (int) $this->bb->maxZ - $this->bb->minZ;
-        $this->totalBlocks = ($x * $y * $z);
+        $this->totalBlocks = (int) ($x * $y * $z);
     }
 
     public function getLastReset() : \DateTime{
