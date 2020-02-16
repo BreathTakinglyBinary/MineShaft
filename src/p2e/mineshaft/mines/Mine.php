@@ -98,7 +98,6 @@ class Mine{
         $maxY = $this->pos1->y < $this->pos2->y ? $this->pos2->y : $this->pos1->y;
         $maxZ = $this->pos1->z < $this->pos2->z ? $this->pos2->z : $this->pos1->z;
         if($this->bb === null){
-            MineShaft::getInstance()->getLogger()->debug("Creating new AABB with $minX, $minY, $minZ, $maxX, $maxY, $maxZ");
             $this->bb = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
         }else{
             $this->bb->setBounds($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
@@ -119,12 +118,10 @@ class Mine{
      */
     public function isInMineableArea(Position $pos) : bool{
         if($this->level->getFolderName() !== $pos->getLevel()->getFolderName()){
-            MineShaft::getInstance()->getLogger()->debug("Mine::isInMineableArea(): Folder name is not a match");
             return false;
         }
         $bb = $this->bb->expandedCopy(1, 1, 1);
         if(!$bb->isVectorInside($pos)){
-            MineShaft::getInstance()->getLogger()->debug("Mine::isInMineableArea(): not inside the bounding box");
             return false;
         }
 
