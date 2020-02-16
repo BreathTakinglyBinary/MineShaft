@@ -56,7 +56,6 @@ class Mine{
         $this->oreTable = new OreTable($ores);
         $this->calculateTotalBlocks();
         $this->resetRemainingBlocks();
-        $this->setLastReset();
     }
 
     public function getName() : string{
