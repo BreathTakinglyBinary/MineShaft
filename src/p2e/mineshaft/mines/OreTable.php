@@ -6,16 +6,11 @@ namespace p2e\mineshaft\mines;
 
 use p2e\mineshaft\utils\WeightedSelectionTable;
 use pocketmine\block\BlockFactory;
-use pocketmine\math\AxisAlignedBB;
-use pocketmine\math\Vector3;
 
 class OreTable extends WeightedSelectionTable{
 
     /** @var array */
     private $ores;
-
-    /** @var array Block[] */
-    private $oreMap = [];
 
     public function __construct(array $ores){
         $this->setOres($ores);
@@ -42,7 +37,7 @@ class OreTable extends WeightedSelectionTable{
      *
      * ["id" => int, "meta" => int, "weight" => int]
      *
-     * @param array[] $ores
+     * @param array<string, int> $ores
      *
      * @throws \InvalidArgumentException
      */
@@ -51,13 +46,13 @@ class OreTable extends WeightedSelectionTable{
             throw new \InvalidArgumentException("OreTable:setOres called with empty ores array!");
         }
         $this->ores = [];
-        $this->oreMap = [];
         foreach($ores as $ore){
             if(!isset($ore["id"]) or !isset($ore["meta"]) or !isset($ore["weight"])){
                 throw new \InvalidArgumentException("Ores array passed to OreTable:setOres contains an invalid structure!");
             }
-
+            $this->ores[$ore["id"]][$ore["meta"]] = $ore["weight"];
         }
+        $this->updateEntries();
     }
 
     private function updateEntries() : void{
@@ -68,24 +63,6 @@ class OreTable extends WeightedSelectionTable{
                 $this->addWeightedEntry($block, $weight);
             }
         }
-    }
-
-
-    public function updateOreMap(AxisAlignedBB $bb) : void{
-        for($x = $bb->minX; $bb->maxX > $x; $x++){
-            for($y = $bb->minY; $bb->maxY > $y; $y++){
-                for($z = $bb->minZ; $bb->maxZ > $z; $z++){
-                    $this->oreMap[] = [new Vector3($x, $y, $z), $this->getRandomEntry()];
-                }
-            }
-        }
-    }
-
-    /**
-     * @return array
-     */
-    public function getOreMap() : array{
-        return $this->oreMap;
     }
 
 }

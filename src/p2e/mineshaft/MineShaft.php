@@ -6,9 +6,10 @@ namespace p2e\mineshaft;
 
 use p2e\mineshaft\mines\MineManager;
 use p2e\mineshaft\tasks\MineManagerHeatbeatTask;
+use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
 
-class MineShaft extends PluginBase{
+class MineShaft extends PluginBase implements Listener{
 
     /** @var MineShaftConfiguration */
     public static $properties;
@@ -32,6 +33,13 @@ class MineShaft extends PluginBase{
 
     public static function getInstance() : MineShaft{
         return self::$instance;
+    }
+
+    /**
+     * @return MineManager
+     */
+    public function getMineManager() : MineManager{
+        return $this->mineManager;
     }
 
     private function loadConfig() : void{

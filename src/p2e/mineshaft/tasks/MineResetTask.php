@@ -6,24 +6,50 @@ namespace p2e\mineshaft\tasks;
 
 use p2e\mineshaft\events\ClearPlayersFromMineEvent;
 use p2e\mineshaft\mines\Mine;
+use p2e\mineshaft\mines\OreTable;
 use p2e\mineshaft\MineShaft;
 use pocketmine\block\Block;
+use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
-use pocketmine\math\Vector3;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\Player;
-use pocketmine\scheduler\Task;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
+use pocketmine\utils\MainLogger;
 use pocketmine\utils\TextFormat;
 
-class MineResetTask extends Task{
+class MineResetTask extends AsyncTask{
 
-    /** @var Mine */
-    private $mine;
+    /** @var AxisAlignedBB */
+    private $bb;
+
+    private $blocksSet = 0;
+
+    /** @var array */
+    private $chunks = [];
+
+    /** @var int */
+    private $levelId;
+
+    /** @var string */
+    private $mineName;
+
+    /** @var OreTable */
+    private $oreTable;
 
     public function __construct(Mine $mine, bool $protectWholeWorld){
-        $this->mine = $mine;
-        $level = $this->mine->getLevel();
+        $this->mineName = $mine->getName();
+        $level = $mine->getLevel();
+        $this->bb = $mine->getBB();
+        $this->oreTable = $mine->getOreTable();
+        $this->levelId = $level->getId();
+        for($x = $this->bb->minX; $x-16 <= $this->bb->maxX; $x += 16){
+            for($z = $this->bb->minZ; $z-16 <= $this->bb->maxZ; $z += 16){
+                $chunk = $level->getChunk($x >> 4, $z >> 4, true);
+                $this->chunks[Level::chunkHash($x >> 4, $z >> 4)] = $chunk->fastSerialize();
+            }
+        }
 
         // TODO: add mine specific safe spawn locations.
         $event = new ClearPlayersFromMineEvent($mine, Server::getInstance()->getDefaultLevel()->getSpawnLocation());
@@ -52,7 +78,7 @@ class MineResetTask extends Task{
      * @param Position $destination
      */
     private function prepareMineOnly(Level $level, Position $destination) : void{
-        $bb = $this->mine->getBB()->expandedCopy(10, 10, 10);
+        $bb = $this->bb->expandedCopy(10, 10, 10);
         foreach($level->getPlayers() as $player){
             if($bb->isVectorInside($player)){
                 $player->teleport($destination);
@@ -66,21 +92,45 @@ class MineResetTask extends Task{
         $player->sendMessage(TextFormat::GOLD . "You were teleported to safety while a mine was being reset :)");
     }
 
-    public function onRun(int $currentTick){
-        $level = $this->mine->getLevel();
+    public function onRun(){
+        $oreTable = $this->oreTable;
+        $chunks = [];
+        foreach($this->chunks as $chunkHash => $chunkBlob){
+            $chunks[$chunkHash] = Chunk::fastDeserialize($chunkBlob);
+        }
+        $bb = $this->bb;
         $blocksSet = 0;
-        foreach($this->mine->getOreTable()->getOreMap() as $data){
-            if(!($pos = $data[0]) instanceof Vector3 or !($block = $data[1]) instanceof Block){
-                continue;
+        for($x = (int) $bb->minX; $x <= $bb->maxX; $x++){
+            $chunkX = $x >> 4;
+            for($z = (int) $bb->minZ; $z <= $bb->maxZ; $z++){
+                $chunkZ = $z >> 4;
+                $currentChunk = $chunks[Level::chunkHash($chunkX, $chunkZ)];
+                assert($currentChunk instanceof Chunk);
+                for($y = (int) $bb->minY; $y <= $bb->maxY; $y++){
+                    $block = $oreTable->getRandomEntry();
+                    $subChunk = $currentChunk->getSubChunk($y >> 4, true);
+                    $subChunk->setBlock(($x % 16) , ($y % 16), ($z % 16), $block->getId() & 0xff, $block->getDamage() & 0xff);
+                    $blocksSet++;
+                }
             }
-            $level->setBlock($pos, $block);
-            $blocksSet++;
         }
-        if($this->mine->getTotalBlocks() > $blocksSet){
-            MineShaft::getInstance()->getLogger()->debug("Found inconsistency with OreTable for " . $this->mine->getName() . ". Set blocks = $blocksSet but expected " . $this->mine->getTotalBlocks());
-        }
-        $this->mine->resetRemainingBlocks();
-        $this->mine->setLocked(false);
+        $this->blocksSet = $blocksSet;
+        $this->setResult($chunks);
+    }
+
+    public function onCompletion(Server $server){
+        $startTime = microtime(true);
+            $level = $server->getLevel($this->levelId);
+            if ($level instanceof Level) {
+                foreach ($this->getResult() as $hash => $chunk) {
+                    Level::getXZ($hash, $x, $z);
+                    $level->setChunk($x, $z, $chunk, true);
+
+                }
+            }
+            $mine = MineShaft::getInstance()->getMineManager()->getMine($this->mineName);
+        $mine->resetRemainingBlocks();
+        $mine->setLocked(false);
     }
 
 }

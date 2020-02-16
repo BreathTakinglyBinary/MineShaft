@@ -43,6 +43,7 @@ class MineManager{
         $this->statusListeners[$mineName] = new MineStatusListener($mine, $this);
         Server::getInstance()->getPluginManager()->registerEvents($this->protectionListeners[$mineName], MineShaft::getInstance());
         Server::getInstance()->getPluginManager()->registerEvents($this->statusListeners[$mineName], MineShaft::getInstance());
+        $this->resetQueue->addMine($mine);
     }
 
     /**
@@ -145,7 +146,7 @@ class MineManager{
             if($error){
                 MineShaft::getInstance()->getLogger()->error("Failed to add $mineName.  Check log for error information.");
             }else{
-                $this->registerMine(new Mine($mineName, $level, $pos1, $pos2, new OreTable($ores)));
+                $this->registerMine(new Mine($mineName, $level, $pos1, $pos2, $ores));
             }
         }
 

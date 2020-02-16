@@ -7,6 +7,7 @@ namespace p2e\mineshaft\mines;
 
 use p2e\mineshaft\MineShaft;
 use p2e\mineshaft\tasks\MineResetTask;
+use pocketmine\Server;
 
 class ResetQueue{
 
@@ -31,7 +32,7 @@ class ResetQueue{
         $nextMine = array_shift($this->queue);
         if($nextMine instanceof Mine){
             $protectionEnabled = MineShaft::getProperties()->isEntireWorldProtectionEnabled();
-            MineShaft::getInstance()->getScheduler()->scheduleTask(new MineResetTask($nextMine, $protectionEnabled));
+             Server::getInstance()->getAsyncPool()->submitTask(new MineResetTask($nextMine, $protectionEnabled));
             unset($this->queueList[$nextMine->getName()]);
         }
     }
