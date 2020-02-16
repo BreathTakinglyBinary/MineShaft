@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
-class MineListener{
+abstract class MineListener{
 
     /** @var Mine */
     protected $mine;
