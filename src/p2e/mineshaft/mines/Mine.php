@@ -151,9 +151,9 @@ class Mine{
         if(!$this->isInMineableArea($block)){
             return false;
         }
-        if(!isset($this->removedBlocks[(int) $block->x][(int) $block->z][(int) $block->z])){
+        if(!isset($this->removedBlocks[(int) $block->x][(int) $block->y][(int) $block->z])){
             $this->reduceBlockCount();
-            $this->removedBlocks[(int) $block->x][(int) $block->z][(int) $block->z] = true;
+            $this->removedBlocks[(int) $block->x][(int) $block->y][(int) $block->z] = true;
         }
         return true;
     }
