@@ -63,7 +63,9 @@ class MineManager{
     private function checkLastReset(): void{
         $currentTime = new \DateTime();
         foreach($this->mines as $mine){
-            if(($mine->getLastReset()->add(MineShaft::getProperties()->getRefillInterval())) <= $currentTime){
+            $lastReset = clone ($mine->getLastReset());
+            if(($lastReset->add(MineShaft::getProperties()->getRefillInterval())) <= $currentTime){
+                MineShaft::getInstance()->getLogger()->debug("Queueing Mine \"" . $mine->getName() . "\" for a time based reset.");
                 $this->resetQueue->addMine($mine);
             }
         }
