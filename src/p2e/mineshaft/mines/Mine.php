@@ -53,7 +53,7 @@ class Mine{
         $this->pos2 = $pos2;
         $this->updateBB();
 
-        $this->oreTable = new OreTable($ores, $this->bb);
+        $this->oreTable = new OreTable($ores);
         $this->calculateTotalBlocks();
         $this->resetRemainingBlocks();
         $this->setLastReset();
