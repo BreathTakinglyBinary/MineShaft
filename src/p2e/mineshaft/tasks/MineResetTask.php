@@ -8,7 +8,6 @@ use p2e\mineshaft\events\ClearPlayersFromMineEvent;
 use p2e\mineshaft\mines\Mine;
 use p2e\mineshaft\mines\OreTable;
 use p2e\mineshaft\MineShaft;
-use pocketmine\block\Block;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -16,7 +15,6 @@ use pocketmine\math\AxisAlignedBB;
 use pocketmine\Player;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
-use pocketmine\utils\MainLogger;
 use pocketmine\utils\TextFormat;
 
 class MineResetTask extends AsyncTask{
