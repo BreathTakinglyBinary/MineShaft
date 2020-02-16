@@ -26,7 +26,7 @@ class MineShaftConfiguration{
     private $refillPercentage = 5;
 
     /** @var DateInterval */
-    private $refillInterval = 600;
+    private $refillInterval;
 
     /**
      * @param bool $autoRefill
@@ -93,6 +93,10 @@ class MineShaftConfiguration{
      * @return DateInterval
      */
     public function getRefillInterval() : DateInterval{
+        if(!$this->refillInterval instanceof DateInterval){
+            MineShaft::getInstance()->getLogger()->debug("Tried to get refill interval before it was set.  Using default of 600 seconds.");
+            $this->refillInterval = new DateInterval("PT600S");
+        }
         return $this->refillInterval;
     }
 
@@ -100,12 +104,12 @@ class MineShaftConfiguration{
      * @param int $seconds
      */
     public function setRefillInterval(int $seconds) : void{
+        $default = 600;
         if(!($seconds >= 60)){
-            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$seconds\" for refill interval.  Must be an integer of 60 or more. Using " . $this->refillInterval->format("%s seconds") . " instead.");
-
-            return;
+            MineShaft::getInstance()->getLogger()->error("Tried to set an invalid value of \"$seconds\" for refill interval.  Must be an integer of 60 or more. Using $default instead.");
+            $seconds = $default;
         }
-        $this->refillInterval = $seconds;
+        $this->refillInterval = new DateInterval("PT" . $seconds . "S");
     }
 
     /**
