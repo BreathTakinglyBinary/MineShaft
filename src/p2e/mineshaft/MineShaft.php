@@ -12,7 +12,7 @@ use pocketmine\plugin\PluginBase;
 class MineShaft extends PluginBase implements Listener{
 
     /** @var MineShaftConfiguration */
-    public static $properties;
+    private static $properties;
 
     /** @var MineShaft */
     private static $instance;
