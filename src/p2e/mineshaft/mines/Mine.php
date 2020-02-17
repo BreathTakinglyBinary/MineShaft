@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
-use p2e\mineshaft\MineShaft;
 use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
