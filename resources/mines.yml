@@ -18,6 +18,13 @@
 #      y_coord: 41
 #      z_coord: 22
 #
+#     These settings are optional.  Set the location where players should be sent when
+#     a mine resets or when a player uses the warp command.
+#     spawn:
+#      x_coord: 24
+#      y_coord: 41
+#      z_coord: 22
+#
 #    This is the list of ores to fill the mine with. You can have any number
 #    of ores you'd like.  The format for these is BlockID;BlockMeta;Weight;
 #    Higher weights will appear more often while lower weights appear less often.
@@ -35,6 +42,10 @@ MineA:
     x_coord: 24
     y_coord: 41
     z_coord: 22
+  spawn:
+    x_coord: 9.5
+    y_coord: 67
+    z_coord: -15.5
   ores:
     - 1;0;31
     - 236;10;70
@@ -48,6 +59,10 @@ MineB:
     x_coord: 24
     y_coord: 41
     z_coord: 22
+  spawn:
+    x_coord: 9.5
+    y_coord: 67
+    z_coord: -15.5
   ores:
     - 56;0;31
     - 236;10;70

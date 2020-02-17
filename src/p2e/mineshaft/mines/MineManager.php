@@ -92,18 +92,14 @@ class MineManager{
 
         $config = yaml_parse_file(MineShaft::getInstance()->getDataFolder() . DIRECTORY_SEPARATOR . "mines.yml");
         foreach($config as $mineName => $properties){
-            $error = false;
 
             if(!isset($properties["level"])){
-                $error = true;
                 $this->missingEntryError("level", $mineName);
             }elseif(!is_string($properties["level"])){
-                $error = true;
                 $this->invalidEntryError("level", $mineName);
             }else{
                 $levelName = $properties["level"];
                 if(!Server::getInstance()->isLevelGenerated($levelName)){
-                    $error = true;
                     $this->invalidEntryError("level", $mineName);
                     continue;
                 }
@@ -115,41 +111,49 @@ class MineManager{
             }
 
             if(!isset($properties["pos1"])){
-                $error = true;
                 $this->missingEntryError("pos1", $mineName);
             }elseif(!($pos1 = $this->verifyPosition($properties["pos1"])) instanceof Vector3){
-                $error = true;
                 $this->invalidEntryError("pos1", $mineName);
             }
 
             if(!isset($properties["pos2"])){
-                $error = true;
                 $this->missingEntryError("pos2", $mineName);
             }elseif(!($pos2 = $this->verifyPosition($properties["pos2"])) instanceof Vector3){
-                $error = true;
                 $this->invalidEntryError("pos2", $mineName);
             }
 
-            $ores = [];
+            if(!isset($properties["spawn"])){
+                $this->missingEntryError("spawn", $mineName);
+            }else{
+                $spawn = $this->verifyPosition($properties["spawn"], true);
+                if(!$spawn instanceof Vector3){
+                    $this->invalidEntryError("spawn", $mineName);
+                }else{
+                    MineShaft::getInstance()->getLogger()->debug("Setting spawn point for $mineName to (" . $spawn->x . ", " . $spawn->y . ", " . $spawn->z . ")");
+                }
+            }
+
             if(!isset($properties["ores"])){
-                $error = true;
                 $this->missingEntryError("ores", $mineName);
             }elseif(!is_array($properties["ores"])){
-                $error = true;
                 $this->invalidEntryError("ores", $mineName);
             }else{
                 $ores = $this->verifyOres($properties["ores"], $mineName);
                 if(empty($ores)){
-                    $error = true;
                     $this->invalidEntryError("ores", $mineName);
                 }
             }
-
-            if($error){
+            if(!isset($level) or !isset($pos1) or !isset($pos2) or !isset($ores)){
                 MineShaft::getInstance()->getLogger()->error("Failed to add $mineName.  Check log for error information.");
             }else{
-                $this->registerMine(new Mine($mineName, $level, $pos1, $pos2, $ores));
+                if(!isset($spawn) or !$spawn instanceof Vector3){
+                    MineShaft::getInstance()->getLogger()->debug("Using level spawn location for $mineName");
+                    $spawn = $level->getSpawnLocation();
+                }
+                MineShaft::getInstance()->getLogger()->debug("Final setting for $mineName spawn point is (" . $spawn->x . ", " . $spawn->y . ", " . $spawn->z . ")");
+                $this->registerMine(new Mine($mineName, $level, $pos1, $pos2, $ores, $spawn));
             }
+            unset($level, $pos1, $pos2, $ores, $spawn);
         }
 
     }
@@ -159,9 +163,14 @@ class MineManager{
      *
      * @return Vector3|false
      */
-    private function verifyPosition(array $coords){
-        if(!isset($coords["x_coord"]) or !is_int($coords["x_coord"]) or !isset($coords["y_coord"]) or !is_int($coords["y_coord"]) or !isset($coords["z_coord"]) or !is_int($coords["z_coord"])){
+    private function verifyPosition(array $coords, bool $allowFloats = false){
+        if(!isset($coords["x_coord"]) or !isset($coords["y_coord"]) or !isset($coords["z_coord"])){
             return false;
+        }
+        if(!$allowFloats){
+            if(!is_int($coords["x_coord"]) or !is_int($coords["y_coord"]) or !is_int($coords["z_coord"])){
+                return false;
+            }
         }
 
         return new Vector3($coords["x_coord"], $coords["y_coord"], $coords["z_coord"]);

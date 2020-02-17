@@ -49,8 +49,8 @@ class MineResetTask extends AsyncTask{
             }
         }
 
-        // TODO: add mine specific safe spawn locations.
-        $event = new ClearPlayersFromMineEvent($mine, Server::getInstance()->getDefaultLevel()->getSpawnLocation());
+
+        $event = new ClearPlayersFromMineEvent($mine);
         $event->call();
         $destination = $event->getDestination();
         $protectWholeWorld ? $this->prepareEntireWorld($level, $destination) : $this->prepareMineOnly($level, $destination);

@@ -90,6 +90,12 @@ class MineShaft extends PluginBase implements Listener{
             $this->sendinvalidValueWarning("percentage", (string) self::$properties->getRefillPercentage(), "refill");
         }
 
+        if(is_bool(($useServerSpawn = $config->get("use_server_spawn", null)))){
+            self::$properties->setUseServerSpawn($useServerSpawn);
+        }else{
+            $this->sendinvalidValueWarning("use_server_spawn", self::$properties->isUseServerSpawnEnabled() ? "true" : "false");
+        }
+
         // This value is intentionally left out of the default config as it can cause performance issue if set inappropriately.
         if(is_int(($queueProcessInterval = $config->getNested("global.queue_process_interval", null)))){
             self::$properties->setQueueProcessInterval($queueProcessInterval);

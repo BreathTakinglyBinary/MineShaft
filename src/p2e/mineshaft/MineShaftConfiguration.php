@@ -28,6 +28,9 @@ class MineShaftConfiguration{
     /** @var DateInterval */
     private $refillInterval;
 
+    /** @var bool */
+    private $useServerSpawn = true;
+
     /**
      * @param bool $autoRefill
      */
@@ -143,5 +146,19 @@ class MineShaftConfiguration{
      */
     public function setRefillType(int $refillType) : void{
         $this->refillType = $refillType;
+    }
+
+    /**
+     * @param bool $useServerSpawn
+     */
+    public function setUseServerSpawn(bool $useServerSpawn = true) : void{
+        $this->useServerSpawn = $useServerSpawn;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUseServerSpawnEnabled() : bool{
+        return $this->useServerSpawn;
     }
 }

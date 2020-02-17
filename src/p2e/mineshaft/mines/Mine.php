@@ -42,14 +42,18 @@ class Mine{
     /** @var array */
     private $removedBlocks = [];
 
+    /** @var Vector3 */
+    private $spawnLocation;
+
     /** @var int */
     private $totalBlocks;
 
-    public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, array $ores){
+    public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, array $ores, Vector3 $spawn){
         $this->name = $name;
         $this->level = $level;
         $this->pos1 = $pos1;
         $this->pos2 = $pos2;
+        $this->spawnLocation = $spawn;
         $this->updateBB();
 
         $this->oreTable = new OreTable($ores);
@@ -85,6 +89,33 @@ class Mine{
     public function setPos2(Vector3 $pos2) : void{
         $this->pos2 = $pos2;
         $this->updateBB();
+    }
+
+    /**
+     * @param Vector3 $vector3
+     *
+     * @return bool
+     */
+    public function setSpawnLocation(Vector3 $vector3) : bool{
+        $newSpawn = new Position($vector3->x, $vector3->y, $vector3->z, $this->level);
+        if($this->isInMineableArea($newSpawn)){
+            return false;
+        }
+        $this->spawnLocation = $vector3;
+
+        return true;
+    }
+
+    /**
+     * @return Position
+     * @throws \InvalidArgumentException
+     * @throws \InvalidStateException
+     */
+    public function getSpawnLocation() : Position{
+        if(!$this->level instanceof Level or !$this->spawnLocation instanceof Vector3){
+            throw new \InvalidStateException("Mine::getSpawnLocation() called when no valid level or coordinates were set!");
+        }
+        return new Position($this->spawnLocation->x, $this->spawnLocation->y, $this->spawnLocation->z, $this->level);
     }
 
 

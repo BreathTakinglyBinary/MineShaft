@@ -10,3 +10,4 @@ refill:
   percentage: 10
   interval: 600
 
+use_server_spawn: true;
