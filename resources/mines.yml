@@ -10,44 +10,44 @@
 #
 #    pos1 and pos2 should be the corners of the area where ores will be spawned
 #    pos1:
-#      x_coord: -45
-#      y_coord: 64
-#      z_coord: 1076
+#      x_coord: -4
+#      y_coord: 65
+#      z_coord: -6
 #    pos2:
-#      x_coord: 758
-#      y_coord: 180
-#      z_coord: 2144
+#      x_coord: 24
+#      y_coord: 41
+#      z_coord: 22
 #
 #    This is the list of ores to fill the mine with. You can have any number
 #    of ores you'd like.  The format for these is BlockID;BlockMeta;Weight;
 #    Higher weights will appear more often while lower weights appear less often.
 #    ores:
 #      - 1;0;31
-#      - ;10;70
+#      - 236;10;70
 
 MineA:
   level: minea
   pos1:
-    x_coord: -45
-    y_coord: 64
-    z_coord: 1076
+    x_coord: -4
+    y_coord: 65
+    z_coord: -6
   pos2:
-    x_coord: 758
-    y_coord: 180
-    z_coord: 2144
+    x_coord: 24
+    y_coord: 41
+    z_coord: 22
   ores:
     - 1;0;31
     - 236;10;70
 MineB:
   level: mineb
   pos1:
-    x_coord: -45
-    y_coord: 64
-    z_coord: 72
+    x_coord: -4
+    y_coord: 65
+    z_coord: -6
   pos2:
-    x_coord: -100
-    y_coord: 30
-    z_coord: 12
+    x_coord: 24
+    y_coord: 41
+    z_coord: 22
   ores:
     - 56;0;31
     - 236;10;70
