@@ -66,7 +66,7 @@ class MineShaft extends PluginBase implements Listener{
         }
 
         if(!is_bool(($automatic = $config->getNested("refill.automatic", null)))){
-            $this->getLogger()->warning("Found invalid value for refill setting \"automatic\" in config.yml.  Setting to default \"true\"");
+            $this->sendinvalidValueWarning("automatic", "true", "refill");
             $automatic = true;
         }
         self::$properties->enableAutoRefill($automatic);
@@ -75,25 +75,32 @@ class MineShaft extends PluginBase implements Listener{
         if($type === "time"){
             self::$properties->setRefillType(MineShaftConfiguration::REFILL_TYPE_TIME);
         }elseif($type !== "percent"){
-            $this->getLogger()->warning("Found invalid value for refill setting \"type\" in config.yml.  Setting to default \"percent\"");
+            $this->sendinvalidValueWarning("type", "percent", "refill");
         }
 
         if(is_int(($interval = $config->getNested("refill.interval", null)))){
             self::$properties->setRefillInterval($interval);
         }else{
-            $this->getLogger()->warning("Found invalid value for refill setting \"interval\" in config.yml.  Setting to default \"" . self::$properties->getRefillInterval()->format("%s seconds") . "\".");
+            $this->sendinvalidValueWarning("interval", self::$properties->getRefillInterval()->format("%s seconds"), "refill");
         }
 
         if(is_int(($percentage = $config->getNested("refill.percentage", null)))){
             self::$properties->setRefillPercentage($percentage);
         }else{
-            $this->getLogger()->warning("Found invalid value for refill setting \"percentage\" in config.yml.  Setting to default \"" . self::$properties->getRefillPercentage() . "\".");
+            $this->sendinvalidValueWarning("percentage", (string) self::$properties->getRefillPercentage(), "refill");
         }
 
         // This value is intentionally left out of the default config as it can cause performance issue if set inappropriately.
         if(is_int(($queueProcessInterval = $config->getNested("global.queue_process_interval", null)))){
             self::$properties->setQueueProcessInterval($queueProcessInterval);
         }
+    }
+
+    private function sendinvalidValueWarning(string $property, string $defaultValue, string $node = "") : void{
+        if(!$node === ""){
+            $node .= " ";
+        }
+        $this->getLogger()->warning("Found invalid value for " . $node. "setting \"$property\" in config.yml.  Setting to default \"$defaultValue\".");
     }
 
 }
