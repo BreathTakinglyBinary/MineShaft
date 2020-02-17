@@ -107,7 +107,7 @@ class MineResetTask extends AsyncTask{
                 for($y = (int) $bb->minY; $y <= $bb->maxY; $y++){
                     $block = $oreTable->getRandomEntry();
                     $subChunk = $currentChunk->getSubChunk($y >> 4, true);
-                    $subChunk->setBlock(($x % 16) , ($y % 16), ($z % 16), $block->getId() & 0xff, $block->getDamage() & 0xff);
+                    $subChunk->setBlock(($x & 0x0f) , ($y & 0x0f), ($z & 0x0f), $block->getId() & 0xff, $block->getDamage() & 0xff);
                     $blocksSet++;
                 }
             }
@@ -117,7 +117,6 @@ class MineResetTask extends AsyncTask{
     }
 
     public function onCompletion(Server $server){
-        $startTime = microtime(true);
             $level = $server->getLevel($this->levelId);
             if ($level instanceof Level) {
                 foreach ($this->getResult() as $hash => $chunk) {
