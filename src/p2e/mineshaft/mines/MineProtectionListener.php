@@ -60,16 +60,14 @@ class MineProtectionListener extends MineListener implements Listener{
         }
         $hasPermission = $this->testNodePerm($player, $action);
         $bypass = $this->testBypassPerm($player);
-        if($this->mine->isInMineableArea($pos) and !($hasPermission or $bypass)){
-            return false;
-        }
-        if(!MineShaft::getProperties()->isEntireWorldProtectionEnabled()){
+        $isMinableArea = $this->mine->isInMineableArea($pos);
+        if($isMinableArea and ($hasPermission or $bypass)){
             return true;
         }
-        if(!$hasPermission and !$bypass){
-            return false;
+        if(MineShaft::getProperties()->isEntireWorldProtectionEnabled() and $bypass){
+            return true;
         }
-        return true;
+        return false;
     }
 
     private function testNodePerm(Player $player, string $node) : bool{
