@@ -153,6 +153,10 @@ class MineShaft extends PluginBase implements Listener{
             return true;
         }
         
+        if(!$mine->hasAccess($sender)){
+            $sender->sendMessage("Mineshaft > You don't have access to this mine.");
+            return true;
+        }
         $sender->teleport($mine->getSpawnLocation());
         $sender->sendMessage("Mineshaft > I spawned you to ".$mine->getName());
         return true;

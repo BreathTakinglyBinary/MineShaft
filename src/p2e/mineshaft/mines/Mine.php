@@ -10,6 +10,7 @@ use pocketmine\world\World;
 use pocketmine\world\Position;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
+use pocketmine\player\Player;
 
 class Mine{
 
@@ -271,5 +272,18 @@ class Mine{
      */
     private function setLastReset() : void{
         $this->lastReset = new \DateTime();
+    }
+    
+    /**
+     * Returns true if player can access this mine
+     * @param Player $player
+     * @return boolean
+     */
+    public function hasAccess(Player $player){
+        try{
+            return $player->hasPermission("mineshaft.break." . strtolower($this->getName()));
+        } catch(\InvalidArgumentException $exception){
+            return false;
+        }
     }
 }

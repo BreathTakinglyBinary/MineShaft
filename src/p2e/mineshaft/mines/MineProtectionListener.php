@@ -72,7 +72,7 @@ class MineProtectionListener extends MineListener implements Listener{
         }
         return false;
     }
-
+    
     private function testNodePerm(Player $player, string $node) : bool{
         try{
             return $player->hasPermission("mineshaft.$node." . strtolower($this->mine->getName()));
