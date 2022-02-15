@@ -17,10 +17,20 @@ class ResetQueue{
     /** @var array  */
     private $queueList = [];
 
+    /**
+     * Check if a mine is queued
+     * @param Mine $mine
+     * @return bool
+     */
     public function isQueued(Mine $mine) : bool{
         return isset($this->queueList[$mine->getName()]);
-}
+    }
 
+    /**
+     * Add a mine to the queue
+     * @param Mine $mine
+     * @retun void
+     */
     public function addMine(Mine $mine) : void{
         if(!$this->isQueued($mine)){
             $this->queue[] = $mine;
@@ -28,6 +38,10 @@ class ResetQueue{
         }
     }
 
+    /**
+     * Proccess the next mine
+     * @return void
+     */
     public function processNext() : void{
         $nextMine = array_shift($this->queue);
         if($nextMine instanceof Mine){

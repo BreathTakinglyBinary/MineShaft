@@ -6,7 +6,7 @@ namespace p2e\mineshaft\mines;
 
 use p2e\mineshaft\utils\WeightedSelectionTable;
 use pocketmine\block\BlockFactory;
-
+use pocketmine\block\VanillaBlocks;
 class OreTable extends WeightedSelectionTable{
 
     /** @var array */
@@ -16,18 +16,36 @@ class OreTable extends WeightedSelectionTable{
         $this->setOres($ores);
     }
 
-
+    /**
+     * Add an ore
+     * @param int $id
+     * @param int $meta
+     * @param int $weight
+     * @return void
+     */
     public function addOre(int $id, int $meta, int $weight) : void{
         $this->ores[$id][$meta] = $weight;
-        $block = BlockFactory::get($id, $meta);
+        $block = BlockFactory::getInstance()->get($id, $meta);
         $this->addWeightedEntry($block, $weight);
     }
 
+    /**
+     * Remove an ore
+     * @param int $id
+     * @param int $meta
+     * @return void
+     */
     public function removeOre(int $id, int $meta) : void{
         unset($this->ores[$id][$meta]);
         $this->updateEntries();
     }
 
+    /**
+     * Check if the table has an ore
+     * @param int $id
+     * @param int $meta
+     * @return bool
+     */
     public function hasOre(int $id, int $meta) : bool{
         return isset($this->ores[$id][$meta]);
     }
@@ -55,11 +73,15 @@ class OreTable extends WeightedSelectionTable{
         $this->updateEntries();
     }
 
+    /**
+     * Update all entries
+     * @return void
+     */
     private function updateEntries() : void{
         $this->reset();
         foreach($this->ores as $id => $values){
             foreach($values as $meta => $weight){
-                $block = BlockFactory::get($id, $meta);
+                $block = BlockFactory::getInstance()->get($id, $meta);
                 $this->addWeightedEntry($block, $weight);
             }
         }

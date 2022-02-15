@@ -8,11 +8,11 @@ use p2e\mineshaft\events\ClearPlayersFromMineEvent;
 use p2e\mineshaft\mines\Mine;
 use p2e\mineshaft\mines\OreTable;
 use p2e\mineshaft\MineShaft;
-use pocketmine\level\format\Chunk;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
+use pocketmine\world\format\Chunk;
+use pocketmine\world\World;
+use pocketmine\world\Position;
 use pocketmine\math\AxisAlignedBB;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -36,16 +36,24 @@ class MineResetTask extends AsyncTask{
     /** @var OreTable */
     private $oreTable;
 
+    /**
+     * @param Mine $mine
+     * @param bool $protectWholeWorld
+     * @return void
+     */
     public function __construct(Mine $mine, bool $protectWholeWorld){
         $this->mineName = $mine->getName();
-        $level = $mine->getLevel();
+        $level = $mine->getWorld();
         $this->bb = $mine->getBB();
         $this->oreTable = $mine->getOreTable();
         $this->levelId = $level->getId();
         for($x = $this->bb->minX; $x-16 <= $this->bb->maxX; $x += 16){
             for($z = $this->bb->minZ; $z-16 <= $this->bb->maxZ; $z += 16){
-                $chunk = $level->getChunk($x >> 4, $z >> 4, true);
-                $this->chunks[Level::chunkHash($x >> 4, $z >> 4)] = $chunk->fastSerialize();
+                $level->loadChunk($x >> 4, $z >> 4);
+                $chunk = $level->getChunk($x >> 4, $z >> 4);
+                
+                $this->chunks[World::chunkHash($x >> 4, $z >> 4)] = serialize($chunk);
+                
             }
         }
 
@@ -59,10 +67,10 @@ class MineResetTask extends AsyncTask{
     /**
      * Removes all player from the world the mine is in and teleports them to a safe location.
      *
-     * @param Level    $level
+     * @param World    $level
      * @param Position $destination
      */
-    private function prepareEntireWorld(Level $level, Position $destination) : void{
+    private function prepareEntireWorld(World $level, Position $destination) : void{
         foreach($level->getPlayers() as $player){
             $player->teleport($destination);
             $this->sendSavedMessage($player);
@@ -72,10 +80,10 @@ class MineResetTask extends AsyncTask{
     /**
      * Removes all players from the area where blocks will be replaced and up to 10 blocks away.
      *
-     * @param Level    $level
+     * @param World    $level
      * @param Position $destination
      */
-    private function prepareMineOnly(Level $level, Position $destination) : void{
+    private function prepareMineOnly(World $level, Position $destination) : void{
         $bb = $this->bb->expandedCopy(10, 10, 10);
         foreach($level->getPlayers() as $player){
             if($bb->isVectorInside($player)){
@@ -85,16 +93,18 @@ class MineResetTask extends AsyncTask{
         }
     }
 
+    /**
+     * @param Player $player
+     */
     private function sendSavedMessage(Player $player) : void{
-        // TODO: Replace static message with tranlsatable message id.
         $player->sendMessage(TextFormat::GOLD . "You were teleported to safety while a mine was being reset :)");
     }
 
-    public function onRun(){
+    public function onRun() : void{
         $oreTable = $this->oreTable;
         $chunks = [];
         foreach($this->chunks as $chunkHash => $chunkBlob){
-            $chunks[$chunkHash] = Chunk::fastDeserialize($chunkBlob);
+            $chunks[$chunkHash] = unserialize($chunkBlob);
         }
         $bb = $this->bb;
         $blocksSet = 0;
@@ -102,12 +112,14 @@ class MineResetTask extends AsyncTask{
             $chunkX = $x >> 4;
             for($z = (int) $bb->minZ; $z <= $bb->maxZ; $z++){
                 $chunkZ = $z >> 4;
-                $currentChunk = $chunks[Level::chunkHash($chunkX, $chunkZ)];
+                $currentChunk = $chunks[World::chunkHash($chunkX, $chunkZ)];
+                
                 assert($currentChunk instanceof Chunk);
                 for($y = (int) $bb->minY; $y <= $bb->maxY; $y++){
                     $block = $oreTable->getRandomEntry();
-                    $subChunk = $currentChunk->getSubChunk($y >> 4, true);
-                    $subChunk->setBlock(($x & 0x0f) , ($y & 0x0f), ($z & 0x0f), $block->getId() & 0xff, $block->getDamage() & 0xff);
+                    $subChunk = $currentChunk->getSubChunk($y >> 4);
+                    $currentChunk->setFullBlock(($x & 0x0f) , ($y & 0x0f), ($z & 0x0f), $block->getId() & 0xff);
+//                     $subChunk->setBlock(($x & 0x0f) , ($y & 0x0f), ($z & 0x0f), $block->getId() & 0xff, $block->getDamage() & 0xff);
                     $blocksSet++;
                 }
             }
@@ -116,11 +128,12 @@ class MineResetTask extends AsyncTask{
         $this->setResult($chunks);
     }
 
-    public function onCompletion(Server $server){
-            $level = $server->getLevel($this->levelId);
-            if ($level instanceof Level) {
+    public function onCompletion(): void{
+            $server = Server::getInstance();
+            $level = $server->getWorldManager()->getWorld($this->levelId);
+            if ($level instanceof World) {
                 foreach ($this->getResult() as $hash => $chunk) {
-                    Level::getXZ($hash, $x, $z);
+                    World::getXZ($hash, $x, $z);
                     $level->setChunk($x, $z, $chunk, true);
 
                 }

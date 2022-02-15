@@ -6,7 +6,9 @@ namespace p2e\mineshaft\utils;
 
 class WeightedSelectionTable{
 
+    /** @var string */
     public const INDEX_ENTRY = "entry";
+    /** @var string */
     public const INDEX_WEIGHT = "weight";
 
 
@@ -19,6 +21,14 @@ class WeightedSelectionTable{
     /** @var int */
     private $totalWeight = 0;
 
+        /**
+         * Returns the function for the random entry.
+         * @return mixed|NULL
+         */
+    public function getRandBypass(){
+        return $this->getRandomEntry();
+    }
+    
     /**
      * Randomly select one of the elements based on their weights. Optimized for a large number of elements.
      *

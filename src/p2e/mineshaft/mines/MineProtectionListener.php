@@ -4,17 +4,20 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
+use InvalidArgumentException;
 use p2e\mineshaft\MineShaft;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\Listener;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
-use pocketmine\Player;
+use pocketmine\world\World;
+use pocketmine\world\Position;
+use pocketmine\player\Player;
 
 class MineProtectionListener extends MineListener implements Listener{
 
+    /** @var string */
     const ACTION_BREAK = "break";
+    /** @var string */
     const ACTION_PLACE = "place";
 
     /**
@@ -23,8 +26,8 @@ class MineProtectionListener extends MineListener implements Listener{
      * @priority LOWEST
      */
     public function onBlockBreak(BlockBreakEvent $event) : void{
-        if(!$this->isActionAllowable($event->getPlayer(), $event->getBlock(), self::ACTION_BREAK)){
-            $event->setCancelled();
+        if(!$this->isActionAllowable($event->getPlayer(), $event->getBlock()->getPosition(), self::ACTION_BREAK)){
+            $event->cancel();
         }
     }
 
@@ -34,8 +37,8 @@ class MineProtectionListener extends MineListener implements Listener{
      * @priority LOWEST
      */
     public function onBlockPlace(BlockPlaceEvent $event) : void{
-        if(!$this->isActionAllowable($event->getPlayer(), $event->getBlock(), self::ACTION_PLACE)){
-            $event->setCancelled();
+        if(!$this->isActionAllowable($event->getPlayer(), $event->getBlock()->getPosition(), self::ACTION_PLACE)){
+            $event->cancel();
         }
     }
 
@@ -47,15 +50,15 @@ class MineProtectionListener extends MineListener implements Listener{
      * @return bool
      */
     private function isActionAllowable(Player $player, Position $pos, string $action) : bool{
-        if(!MineShaft::getProperties()->isProtectionEnabled()){
+        if(MineShaft::getProperties()->isProtectionEnabled() == true){
             return true;
         }
-        $level = $pos->getLevel();
-        if(!$level instanceof Level){
+        $level = $pos->getWorld();
+        if(!$level instanceof World){
             MineShaft::getInstance()->getLogger()->error("MineProtectionListener:isActionAllowable() found block with no Level data!");
             return false;
         }
-        if($level->getName() !== $this->mine->getLevel()->getName()){
+        if($level->getDisplayName() !== $this->mine->getWorld()->getDisplayName()){
             return true;
         }
         $hasPermission = $this->testNodePerm($player, $action);
@@ -73,7 +76,7 @@ class MineProtectionListener extends MineListener implements Listener{
     private function testNodePerm(Player $player, string $node) : bool{
         try{
             return $player->hasPermission("mineshaft.$node." . strtolower($this->mine->getName()));
-        } catch(\InvalidStateException $exception){
+        } catch(\InvalidArgumentException $exception){
             return false;
         }
     }

@@ -13,6 +13,7 @@ use pocketmine\event\player\PlayerMoveEvent;
 
 class MineStatusListener extends MineListener implements Listener{
 
+    /** @var MineManager */
     private $manager;
 
     public function __construct(Mine $mine, MineManager $manager){
@@ -30,7 +31,7 @@ class MineStatusListener extends MineListener implements Listener{
             return;
         }
         $block = $event->getBlock();
-        if(!$this->mine->isInMineableArea($block)){
+        if(!$this->mine->isInMineableArea($block->getPosition())){
             return;
         }
 
@@ -66,7 +67,7 @@ class MineStatusListener extends MineListener implements Listener{
             return;
         }
         if($this->mine->isInMineableArea($event->getTo())){
-            $event->setCancelled();
+            $event->cancel();
         }
 
     }
@@ -83,7 +84,7 @@ class MineStatusListener extends MineListener implements Listener{
             return;
         }
         if($this->mine->isInMineableArea($event->getTo())){
-            $event->setCancelled();
+            $event->cancel();
         }
     }
 

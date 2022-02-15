@@ -8,21 +8,26 @@ use DateInterval;
 
 class MineShaftConfiguration{
 
+    /** @var integer */
     public const REFILL_TYPE_PERCENT = 0;
-
+    
+    /** @var integer */
     public const REFILL_TYPE_TIME = 1;
 
-    private $autoRefill = false;
+    /**
+     * @var boolean $autoRefill
+     * @var boolean $entireWorld
+     * @var boolean $protectionEnabled
+     */
+    private $autoRefill = false, $entireWorld = false,$protectionEnabled = false;
 
-    private $entireWorld = false;
-
-    private $protectionEnabled = false;
-
-    /** @var int */
+    /** @var integer */
     private $queueProcessInterval = 10;
 
+    /** @var integer */
     private $refillType = self::REFILL_TYPE_PERCENT;
 
+    /** @var integer */
     private $refillPercentage = 5;
 
     /** @var DateInterval */

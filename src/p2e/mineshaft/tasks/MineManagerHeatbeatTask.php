@@ -9,13 +9,14 @@ use pocketmine\scheduler\Task;
 
 class MineManagerHeatbeatTask extends Task{
 
+    /** @var MineManager */
     private $manager;
 
     public function __construct(MineManager $manager){
         $this->manager = $manager;
     }
 
-    public function onRun(int $currentTick){
+    public function onRun() : void{
         $this->manager->tick();
     }
 

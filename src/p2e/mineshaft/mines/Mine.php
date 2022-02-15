@@ -4,9 +4,10 @@ declare(strict_types=1);
 namespace p2e\mineshaft\mines;
 
 
+use InvalidArgumentException;
 use pocketmine\block\Block;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
+use pocketmine\world\World;
+use pocketmine\world\Position;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 
@@ -18,7 +19,7 @@ class Mine{
     /** @var \DateTime */
     private $lastReset;
 
-    /** @var Level */
+    /** @var World */
     private $level;
 
     /** @var bool */
@@ -48,7 +49,7 @@ class Mine{
     /** @var int */
     private $totalBlocks;
 
-    public function __construct(string $name, Level $level, Vector3 $pos1, Vector3 $pos2, array $ores, Vector3 $spawn){
+    public function __construct(string $name, World $level, Vector3 $pos1, Vector3 $pos2, array $ores, Vector3 $spawn){
         $this->name = $name;
         $this->level = $level;
         $this->pos1 = $pos1;
@@ -60,32 +61,61 @@ class Mine{
         $this->calculateTotalBlocks();
         $this->resetRemainingBlocks();
     }
-
+    
+    /**
+     * Returns the mine name
+     * @return string
+     */
     public function getName() : string{
         return $this->name;
     }
 
-    public function getLevel() : Level{
+    /**
+     * Get's the world for the mine
+     * @return World
+     */
+    public function getWorld() : World{
         return $this->level;
     }
 
+    /**
+     * Locks the mine
+     * @param bool $enabled
+     * @return void
+     */
     public function setLocked(bool $enabled = true) : void{
         $this->locked = $enabled;
     }
 
+    /**
+     * Checks if the mine is locked
+     * @return bool
+     */
     public function isLocked() : bool{
         return $this->locked;
     }
 
+    /**
+     * Returns the ore table for this mine
+     * @return OreTable
+     */
     public function getOreTable() : OreTable{
         return $this->oreTable;
     }
 
+    /**
+     * Sets pos1 Vector3 for the mine
+     * @param Vector3 $pos1
+     */
     public function setPos1(Vector3 $pos1) : void{
         $this->pos1 = $pos1;
         $this->updateBB();
     }
 
+    /**
+     * Sets the pos2 Vector3 for the mine
+     * @param Vector3 $pos2
+     */
     public function setPos2(Vector3 $pos2) : void{
         $this->pos2 = $pos2;
         $this->updateBB();
@@ -109,16 +139,19 @@ class Mine{
     /**
      * @return Position
      * @throws \InvalidArgumentException
-     * @throws \InvalidStateException
      */
-    public function getSpawnLocation() : Position{
-        if(!$this->level instanceof Level or !$this->spawnLocation instanceof Vector3){
-            throw new \InvalidStateException("Mine::getSpawnLocation() called when no valid level or coordinates were set!");
+    public function getSpawnLocation() : \pocketmine\world\Position{
+        if(!$this->level instanceof World or !$this->spawnLocation instanceof Vector3){
+            throw new \InvalidArgumentException("Mine::getSpawnLocation() called when no valid level or coordinates were set!");
         }
         return new Position($this->spawnLocation->x, $this->spawnLocation->y, $this->spawnLocation->z, $this->level);
     }
 
 
+    /**
+     * Updates the mine pos
+     * @return void
+     */
     private function updateBB() : void{
         $minX = $this->pos1->x > $this->pos2->x ? $this->pos2->x : $this->pos1->x;
         $minY = $this->pos1->y > $this->pos2->y ? $this->pos2->y : $this->pos1->y;
@@ -133,6 +166,10 @@ class Mine{
         }
     }
 
+    /**
+     * Returns the mine bb
+     * @return AxisAlignedBB
+     */
     public function getBB() : AxisAlignedBB{
         return $this->bb;
     }
@@ -146,9 +183,10 @@ class Mine{
      * @return bool
      */
     public function isInMineableArea(Position $pos) : bool{
-        if($this->level->getFolderName() !== $pos->getLevel()->getFolderName()){
+        if($this->level->getFolderName() !== $pos->getWorld()->getFolderName()){
             return false;
         }
+        
         $bb = $this->bb->expandedCopy(1, 1, 1);
         if(!$bb->isVectorInside($pos)){
             return false;
@@ -171,31 +209,47 @@ class Mine{
      * @return bool
      */
     public function removeOre(Block $block) : bool{
-        if(!$block->getLevel()->getName() === $this->level->getName()){
+        if(!$block->getPosition()->getWorld()->getFolderName() === $this->level->getFolderName()){
             return false;
         }
-        if(!$this->isInMineableArea($block)){
+        if(!$this->isInMineableArea($block->getPosition())){
             return false;
         }
-        if(!isset($this->removedBlocks[(int) $block->x][(int) $block->y][(int) $block->z])){
+        if(!isset($this->removedBlocks[(int) $block->getPosition()->getX()][(int) $block->getPosition()->getY()][(int) $block->getPosition()->getZ()])){
             $this->reduceBlockCount();
-            $this->removedBlocks[(int) $block->x][(int) $block->y][(int) $block->z] = true;
+            $this->removedBlocks[(int) $block->getPosition()->getX()][(int) $block->getPosition()->getY()][(int) $block->getPosition()->getZ()] = true;
         }
         return true;
     }
 
+    /**
+     * Reduces the block count
+     * @return void
+     */
     private function reduceBlockCount() : void{
         $this->remainingBlocks--;
     }
 
+    /**
+     * Returns the remaining blocks
+     * @return int
+     */
     public function getRemainingBlocks() : int{
         return $this->remainingBlocks;
     }
 
+    /**
+     * Returns the total blocks
+     * @return int
+     */
     public function getTotalBlocks() : int{
         return $this->totalBlocks;
     }
 
+    /**
+     * Calculates the total blocks from the current bb data.
+     * @return void
+     */
     private function calculateTotalBlocks() : void{
         $x = (int) $this->bb->maxX - $this->bb->minX;
         $y = (int) $this->bb->maxY - $this->bb->minY;
@@ -203,10 +257,18 @@ class Mine{
         $this->totalBlocks = (int) ($x * $y * $z);
     }
 
+    /**
+     * Returns when the mine is last reset.
+     * @return \DateTime
+     */
     public function getLastReset() : \DateTime{
         return $this->lastReset;
     }
 
+    /**
+     * Set's the last reset date
+     * @return void
+     */
     private function setLastReset() : void{
         $this->lastReset = new \DateTime();
     }

@@ -29,7 +29,13 @@ class MineManager{
         $this->loadFromConfig();
     }
 
-    public function registerMine(Mine $mine, bool $force = false){
+    /**
+     * Register a mine
+     * @param Mine $mine
+     * @param bool $force
+     * @return void
+     */
+    public function registerMine(Mine $mine, bool $force = false) : void{
         $mineName = $mine->getName();
         if(isset($this->mines[$mineName])){
             if(!$force){
@@ -60,6 +66,9 @@ class MineManager{
         $this->resetQueue->processNext();
     }
 
+    /**
+     * @return void
+     */
     private function checkLastReset(): void{
         $currentTime = new \DateTime();
         foreach($this->mines as $mine){
@@ -87,6 +96,10 @@ class MineManager{
         return $this->mines;
     }
 
+    /**
+     * Load data from config
+     * @return void
+     */
     public function loadFromConfig() : void{
         MineShaft::getInstance()->saveResource("mines.yml", false);
 
@@ -99,15 +112,15 @@ class MineManager{
                 $this->invalidEntryError("level", $mineName);
             }else{
                 $levelName = $properties["level"];
-                if(!Server::getInstance()->isLevelGenerated($levelName)){
+                if(!Server::getInstance()->getWorldManager()->isWorldGenerated($levelName)){
                     $this->invalidEntryError("level", $mineName);
                     continue;
                 }
-                if(!Server::getInstance()->isLevelLoaded($levelName) and !Server::getInstance()->loadLevel($levelName)){
+                if(!Server::getInstance()->getWorldManager()->isWorldLoaded($levelName) and !Server::getInstance()->getWorldManager()->loadWorld($levelName, true)){
                     $this->invalidEntryError("level", $mineName);
                     continue;
                 }
-                $level = Server::getInstance()->getLevelByName($levelName);
+                $level = Server::getInstance()->getWorldManager()->getWorldByName($levelName);
             }
 
             if(!isset($properties["pos1"])){
@@ -216,10 +229,21 @@ class MineManager{
         return $ores;
     }
 
+    /**
+     * @param string $entry
+     * @param string $mineName
+     * @param string $additionalMessage
+     * @return void
+     */
     private function invalidEntryError(string $entry, string $mineName, string $additionalMessage = "") : void{
         MineShaft::getInstance()->getLogger()->warning("Invalid $entry entry found for \"$mineName\" in mines.yml. $additionalMessage");
     }
 
+    /**
+     * @param string $entry
+     * @param string $mineName
+     * @return void
+     */
     private function missingEntryError(string $entry, string $mineName) : void{
         MineShaft::getInstance()->getLogger()->warning("No $entry entry found for \"$mineName\" in mines.yml.");
     }
