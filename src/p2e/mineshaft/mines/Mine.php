@@ -163,7 +163,7 @@ class Mine{
         if($this->bb === null){
             $this->bb = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
         }else{
-            $this->bb->setBounds($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
+            $this->bb = new AxisAlignedBB($minX, $minY, $minZ, $maxX, $maxY, $maxZ);
         }
     }
 

@@ -52,7 +52,7 @@ class MineResetTask extends AsyncTask{
                 $level->loadChunk($x >> 4, $z >> 4);
                 $chunk = $level->getChunk($x >> 4, $z >> 4);
                 
-                $this->chunks[World::chunkHash($x >> 4, $z >> 4)] = serialize($chunk);
+                $this->chunks[World::chunkHash($x >> 4, $z >> 4)] = $chunk;
                 
             }
         }
@@ -86,7 +86,7 @@ class MineResetTask extends AsyncTask{
     private function prepareMineOnly(World $level, Position $destination) : void{
         $bb = $this->bb->expandedCopy(10, 10, 10);
         foreach($level->getPlayers() as $player){
-            if($bb->isVectorInside($player)){
+            if($bb->isVectorInside($player->getPosition()->asVector3())){
                 $player->teleport($destination);
                 $this->sendSavedMessage($player);
             }
@@ -104,7 +104,7 @@ class MineResetTask extends AsyncTask{
         $oreTable = $this->oreTable;
         $chunks = [];
         foreach($this->chunks as $chunkHash => $chunkBlob){
-            $chunks[$chunkHash] = unserialize($chunkBlob);
+            $chunks[$chunkHash] = $chunkBlob;
         }
         $bb = $this->bb;
         $blocksSet = 0;
@@ -134,7 +134,7 @@ class MineResetTask extends AsyncTask{
             if ($level instanceof World) {
                 foreach ($this->getResult() as $hash => $chunk) {
                     World::getXZ($hash, $x, $z);
-                    $level->setChunk($x, $z, $chunk, true);
+                    $level->setChunk($x, $z, $chunk);
 
                 }
             }
